@@ -20,6 +20,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.G_T }}
+          fetch-depth: 0
         
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -57,9 +60,12 @@ jobs:
         run: git status
         
       - name: Push README
+        env:
+          GITHUB_TOKEN: ${{ secrets.G_T }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add BACKUP/*.md
-          git commit -a -m 'update new blog' || echo "nothing to commit"
-          git push || echo "nothing to push"
+          git remote set-url origin https://${{ secrets.G_T }}@github.com/${{ github.repository }}.git
+          git add README.md feed.xml BACKUP/*.md
+          git commit -m 'update new blog' || echo "nothing to commit"
+          git push origin master || echo "nothing to push"
