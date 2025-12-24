@@ -1,4 +1,4 @@
-name: Generate MyLeetcode README
+name: Generate Leetcode README
 
 on:
   workflow_dispatch:
