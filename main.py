@@ -180,7 +180,7 @@ def add_md_firends(repo, md, me):
     s = markdown.markdown(s, output_format="html", extensions=["extra"])
     with open(md, "a+", encoding="utf-8") as md:
         md.write(
-            f"## [友情链接](https://github.com/{str(me)}/{repo.name}/issues/{friends_issue_number})\n"
+            f"## [友情链接](https://github.com/{str(me)}/leetcode/issues/{friends_issue_number})\n"
         )
         md.write(s)
         md.write("\n\n")
