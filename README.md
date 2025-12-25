@@ -1,4 +1,4 @@
-## MyGitBlog
+## MyLeetcode
 My personal blog using issues and GitHub Actions (参考[yihong](https://github.com/yihong0618/gitblog))
 
 
