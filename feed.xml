@@ -1,5 +1,207 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-25T14:51:57.734527+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-25T14:51:58.078863+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-25T14:54:56.667583+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-25T14:54:57.110460+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+<hr />
+<h2><strong>一、TopK 问题的本质</strong></h2>
+<blockquote>
+<p><strong>TopK = Partition（切分） + 选择（不完全排序）</strong></p>
+</blockquote>
+<p>不是排序问题，</p>
+<p>而是 <strong>“把第 k 个元素放到它最终该在的位置”</strong>。</p>
+<hr />
+<h2><strong>二、面试中 TopK 的 5 种标准问法</strong></h2>
+<table>
+<thead>
+<tr>
+<th><strong>问法</strong></th>
+<th><strong>本质</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前 k 小的数</td>
+<td>切到索引 k-1</td>
+</tr>
+<tr>
+<td>第 k 小的数</td>
+<td>找索引 k-1</td>
+</tr>
+<tr>
+<td>前 k 大的数</td>
+<td>切到索引 n-k</td>
+</tr>
+<tr>
+<td>第 k 大的数</td>
+<td>找索引 n-k</td>
+</tr>
+<tr>
+<td>只排序前 / 后 k 个</td>
+<td>Quickselect + 局部排序</td>
+</tr>
+</tbody></table><p>👉 <strong>90% 的 TopK 都能映射到这 5 个</strong></p>
+<hr />
+<h2><strong>三、两种主流解法选型</strong></h2>
+<h3><strong>1️⃣ 快选（Quickselect）—— 面试首选</strong></h3>
+<ul>
+<li>平均时间复杂度：O(n)</li>
+<li>空间复杂度：O(1)</li>
+<li>原地</li>
+<li>不需要完全排序</li>
+</ul>
+<p>📌 <strong>当 k 不接近 n，或强调效率 → 一定选它</strong></p>
+<hr />
+<h3><strong>2️⃣ 堆（Heap）—— 稳定保底方案</strong></h3>
+<ul>
+<li>时间复杂度：O(n log k)</li>
+<li>适合 <strong>流式数据 / 超大数据 / 在线 TopK</strong></li>
+</ul>
+<p>📌 面试官追问时你可以说：</p>
+<blockquote>
+<p>如果是数据流或内存受限，我会用小根堆 / 大根堆。</p>
+</blockquote>
+<hr />
+<h2><strong>四、Partition（核心中的核心）</strong></h2>
+<h3><strong>标准挖坑法</strong></h3>
+<pre><code class="language-python">def partition(nums, left, right):
+    pivot = nums[left]
+    i, j = left, right
+    while i &lt; j:
+        while i &lt; j and nums[j] &gt;= pivot:
+            j -= 1
+        nums[i] = nums[j]
+        while i &lt; j and nums[i] &lt;= pivot:
+            i += 1
+        nums[j] = nums[i]
+    nums[i] = pivot
+    return i
+</code></pre>
+<p>📌 面试官可能追问：</p>
+<ul>
+<li>
+<p>这是 Hoare 还是 Lomuto？</p>
+<p>👉 <strong>Hoare 变体（挖坑法）</strong></p>
+</li>
+</ul>
+<hr />
+<h2><strong>五、Quickselect 模板</strong></h2>
+<blockquote>
+<p><strong>k 一定是 0-based 索引</strong></p>
+</blockquote>
+<pre><code class="language-python">def quickselect(nums, k, left, right):
+    if left &lt; right:
+        index = partition(nums, left, right)
+        if index == k:
+            return
+        elif index &lt; k:
+            quickselect(nums, k, index + 1, right)
+        else:
+            quickselect(nums, k, left, index - 1)
+</code></pre>
+<hr />
+<h2><strong>六、TopK 全家桶</strong></h2>
+<h3><strong>1️⃣ 前 k 小的数</strong></h3>
+<pre><code class="language-python">def topk_smalls(nums, k):
+    quickselect(nums, k - 1, 0, len(nums) - 1)
+    return nums[:k]
+</code></pre>
+<hr />
+<h3><strong>2️⃣ 第 k 小的数</strong></h3>
+<pre><code class="language-python">def kth_small(nums, k):
+    quickselect(nums, k - 1, 0, len(nums) - 1)
+    return nums[k - 1]
+</code></pre>
+<hr />
+<h3><strong>3️⃣ 前 k 大的数</strong></h3>
+<pre><code class="language-python">def topk_larges(nums, k):
+    n = len(nums)
+    quickselect(nums, n - k, 0, n - 1)
+    return nums[n - k:]
+</code></pre>
+<hr />
+<h3><strong>4️⃣ 第 k 大的数</strong></h3>
+<pre><code class="language-python">def kth_large(nums, k):
+    n = len(nums)
+    quickselect(nums, n - k, 0, n - 1)
+    return nums[n - k]
+</code></pre>
+<hr />
+<h3><strong>5️⃣ 只排序前 k 个小的数</strong></h3>
+<pre><code class="language-python">def topk_sort_left(nums, k):
+    quickselect(nums, k - 1, 0, len(nums) - 1)
+    quicksort(nums, 0, k - 1)
+    return nums
+</code></pre>
+<hr />
+<h3><strong>6️⃣ 只排序后 k 个大的数</strong></h3>
+<pre><code class="language-python">def topk_sort_right(nums, k):
+    n = len(nums)
+    quickselect(nums, n - k, 0, n - 1)
+    quicksort(nums, n - k, n - 1)
+    return nums
+</code></pre>
+<hr />
+<h2><strong>七、k 的语义速查表</strong></h2>
+<table>
+<thead>
+<tr>
+<th><strong>人类语义</strong></th>
+<th><strong>Quickselect 用的 k</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 k 小</td>
+<td>k-1</td>
+</tr>
+<tr>
+<td>前 k 小</td>
+<td>k-1</td>
+</tr>
+<tr>
+<td>第 k 大</td>
+<td>n-k</td>
+</tr>
+<tr>
+<td>前 k 大</td>
+<td>n-k</td>
+</tr>
+</tbody></table><p>📌 <strong>90% TopK bug 来自这里</strong></p>
+<hr />
+<h2><strong>八、面试官高频追问 &amp; 标准回答</strong></h2>
+<h3><strong>Q1：为什么不用快速排序？</strong></h3>
+<blockquote>
+<p>因为 TopK 不需要全局有序，只需要第 k 个元素就位。</p>
+</blockquote>
+<blockquote>
+<p>Quickselect 平均时间复杂度是 O(n)，优于排序的 O(n log n)。</p>
+</blockquote>
+<hr />
+<h3><strong>Q2：Quickselect 最坏情况？</strong></h3>
+<blockquote>
+<p>最坏是 O(n^2)，可以通过随机 pivot 或三数取中优化。</p>
+</blockquote>
+<hr />
+<h3><strong>Q3：什么时候用堆？</strong></h3>
+<blockquote>
+<p>数据流、k 很小、或者无法一次性加载全部数据时。</p>
+</blockquote>
+<hr />
+<h3><strong>Q4：TopK 会稳定吗？</strong></h3>
+<blockquote>
+<p>不稳定。Quickselect 和 Heap 都不保证稳定性。</p>
+</blockquote>
+<hr />
+<h2><strong>九、30 秒面试答题心法</strong></h2>
+<blockquote>
+<p>TopK 本质是选择问题而不是排序问题。</p>
+</blockquote>
+<blockquote>
+<p>我会使用基于 Partition 的 Quickselect，在平均 O(n) 时间内把第 k 个元素放到正确位置。</p>
+</blockquote>
+<blockquote>
+<p>如果需要排序前 / 后 k 个元素，只在局部再做一次排序即可。</p>
+</blockquote>
+<hr />
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-25T14:54:57.329060+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
