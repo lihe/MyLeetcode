@@ -1,5 +1,332 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-27T05:32:46.179385+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-27T05:32:46.441685+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-27T05:54:27.879616+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-27T05:54:28.202301+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
+<h2><strong>一、核心结论</strong></h2>
+<blockquote>
+<p><strong>有序数组 + O(log n)</strong></p>
+</blockquote>
+<blockquote>
+<p>👉 <strong>只能用二分查找</strong></p>
+</blockquote>
+<hr />
+<h2><strong>二、标准二分查找（推荐写法）</strong></h2>
+<h3><strong>✅ Python 正确实现（闭区间写法）</strong></h3>
+<pre><code class="language-python">class Solution:
+    def search(self, nums, target):
+        left, right = 0, len(nums) - 1
+
+        while left &lt;= right:
+            mid = (left + right) // 2
+
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] &lt; target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return -1
+</code></pre>
+<hr />
+<h2><strong>三、用示例完整走一遍</strong></h2>
+<h3><strong>示例 1</strong></h3>
+<pre><code>nums = [-1,0,3,5,9,12]
+target = 9
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><strong>left</strong></th>
+<th><strong>right</strong></th>
+<th><strong>mid</strong></th>
+<th><strong>nums[mid]</strong></th>
+<th><strong>操作</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>5</td>
+<td>2</td>
+<td>3</td>
+<td>target &gt; 3 → left=3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>5</td>
+<td>4</td>
+<td>9</td>
+<td>命中 → return 4</td>
+</tr>
+</tbody></table><hr />
+<h3><strong>示例 2</strong></h3>
+<pre><code>nums = [-1,0,3,5,9,12]
+target = 2
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><strong>left</strong></th>
+<th><strong>right</strong></th>
+<th><strong>mid</strong></th>
+<th><strong>nums[mid]</strong></th>
+<th><strong>操作</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>5</td>
+<td>2</td>
+<td>3</td>
+<td>target &lt; 3 → right=1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>-1</td>
+<td>target &gt; -1 → left=1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>target &gt; 0 → left=2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>结束</td>
+<td></td>
+<td>return -1</td>
+</tr>
+</tbody></table><hr />
+<h2><strong>四、为什么时间复杂度是 O(log n)？</strong></h2>
+<h3><strong>每一步都在干什么？</strong></h3>
+<ul>
+<li>把搜索区间 <strong>缩小一半</strong></li>
+<li>n → n/2 → n/4 → …</li>
+</ul>
+<p>查找次数：</p>
+<p>$\log_2 n$</p>
+<p>👉 所以是 <strong>O(log n)</strong></p>
+<hr />
+<h2><strong>五、二分查找的三个“铁律”</strong></h2>
+<h3><strong>1️⃣ 数组必须有序</strong></h3>
+<p>（本题已保证）</p>
+<hr />
+<h3><strong>2️⃣ 区间定义要统一</strong></h3>
+<p>你这版用的是：</p>
+<pre><code>[left, right]  闭区间
+</code></pre>
+<p>所以：</p>
+<ul>
+<li>while 用 &lt;=</li>
+<li>左边收缩：left = mid + 1</li>
+<li>右边收缩：right = mid - 1</li>
+</ul>
+<hr />
+<h3><strong>3️⃣ mid 一定要这样算</strong></h3>
+<pre><code>mid = (left + right) // 2
+</code></pre>
+<p>（Python 不会溢出，但这是标准写法）</p>
+<hr />
+<h2><strong>六、常见错误（90% 翻车点）</strong></h2>
+<h3><strong>❌ 错误 1：while 写成</strong></h3>
+<h3><strong>&lt;</strong></h3>
+<pre><code>while left &lt; right:   # ❌
+</code></pre>
+<p>👉 会漏掉最后一个元素</p>
+<hr />
+<h3><strong>❌ 错误 2：区间没对齐</strong></h3>
+<pre><code>right = mid      # ❌
+</code></pre>
+<p>👉 可能死循环</p>
+<hr />
+<h3><strong>❌ 错误 3：忘记 return -1</strong></h3>
+<hr />
+<h2><strong>七、另一种写法（左闭右开区间，了解即可）</strong></h2>
+<pre><code class="language-python">class Solution:
+    def search(self, nums, target):
+        left, right = 0, len(nums)
+
+        while left &lt; right:
+            mid = (left + right) // 2
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] &lt; target:
+                left = mid + 1
+            else:
+                right = mid
+
+        return -1
+</code></pre>
+<hr />
+<h2><strong>八、面试标准回答模板</strong></h2>
+<blockquote>
+<p>这是一个典型的二分查找问题。</p>
+</blockquote>
+<blockquote>
+<p>因为数组是有序的，并且要求 O(log n) 的时间复杂度，我使用二分查找，在每一步把搜索区间缩小一半，最终找到目标值或返回 -1。</p>
+</blockquote>
+<hr />
+<h1>进阶</h1>
+<h2><strong>一、问题</strong></h2>
+<blockquote>
+<p><strong>数组有重复元素</strong></p>
+</blockquote>
+<blockquote>
+<p>要求：<strong>返回 target 第一次出现的位置（最左边）</strong></p>
+</blockquote>
+<p>这是经典问题，通常叫：</p>
+<ul>
+<li><strong>Binary Search – First Occurrence</strong></li>
+<li>或 <strong>lower_bound 的等值版本</strong></li>
+</ul>
+<hr />
+<h2><strong>二、思路</strong></h2>
+<blockquote>
+<p>在搜索到 target 之后 <strong>不立即返回</strong>，</p>
+</blockquote>
+<blockquote>
+<p><strong>记录 mid</strong>，然后把 right 向左移动一位继续找</p>
+</blockquote>
+<p>但要注意两点细节：</p>
+<ol>
+<li><strong>right 不是简单减 1</strong></li>
+<li>而是 <strong>right = mid - 1</strong></li>
+</ol>
+<hr />
+<h2><strong>三、正确的“找第一个 target”的二分逻辑</strong></h2>
+<h3><strong>关键思想（一句话）</strong></h3>
+<blockquote>
+<p><strong>当 nums[mid] == target 时，说明答案在左侧（包括 mid），</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>先记下 mid，再继续向左收缩区间。</strong></p>
+</blockquote>
+<hr />
+<h2><strong>四、标准代码</strong></h2>
+<pre><code class="language-python">class Solution:
+    def searchFirst(self, nums, target):
+        left, right = 0, len(nums) - 1
+        ans = -1  # 用来记录答案
+
+        while left &lt;= right:
+            mid = (left + right) // 2
+
+            if nums[mid] == target:
+                ans = mid              # 记录当前命中位置
+                right = mid - 1        # 继续向左找
+            elif nums[mid] &lt; target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return ans
+</code></pre>
+<hr />
+<h2><strong>五、手动走一遍（你一定要能走）</strong></h2>
+<h3><strong>示例</strong></h3>
+<pre><code>nums = [1,2,2,2,3,4]
+target = 2
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><strong>left</strong></th>
+<th><strong>right</strong></th>
+<th><strong>mid</strong></th>
+<th><strong>nums[mid]</strong></th>
+<th><strong>操作</strong></th>
+<th><strong>ans</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>5</td>
+<td>2</td>
+<td>2</td>
+<td>记录，right=1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>left=1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>记录，right=0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>结束</td>
+<td></td>
+<td></td>
+<td>1</td>
+</tr>
+</tbody></table><p>✅ 返回 1（第一个 2）</p>
+<hr />
+<h2><strong>六、和“普通二分”的本质区别</strong></h2>
+<h3><strong>普通二分（无重复）</strong></h3>
+<pre><code>if nums[mid] == target:
+    return mid
+</code></pre>
+<hr />
+<h3><strong>找第一个（有重复）</strong></h3>
+<pre><code>if nums[mid] == target:
+    ans = mid
+    right = mid - 1
+</code></pre>
+<p>📌 <strong>区别只在这一点</strong></p>
+<hr />
+<h2><strong>七、面试官标准听法</strong></h2>
+<blockquote>
+<p>当数组中存在重复元素时，如果要求返回第一个 target，在二分查找到 target 后不能立即返回，而是记录当前位置，并继续在左半区间查找，最终得到最左侧的 target 下标。</p>
+</blockquote>
+<p>这句话 <strong>非常标准</strong>。</p>
+<hr />
+<h2><strong>八、顺手给一个“对称版本”（找最后一个）</strong></h2>
+<h3><strong>找最后一个 target（最右）</strong></h3>
+<pre><code class="language-python">class Solution:
+    def searchLast(self, nums, target):
+        left, right = 0, len(nums) - 1
+        ans = -1
+
+        while left &lt;= right:
+            mid = (left + right) // 2
+
+            if nums[mid] == target:
+                ans = mid
+                left = mid + 1     # 向右找
+            elif nums[mid] &lt; target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return ans
+</code></pre>
+<hr />
+<h2><strong>九、二分查找“进阶口诀”</strong></h2>
+<blockquote>
+<p><strong>找第一个：命中后右边界左移</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>找最后一个：命中后左边界右移</strong></p>
+</blockquote>
+<hr />
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-27T05:54:28.339345+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
 <hr />
 <h2><strong>一、TopK 问题的本质</strong></h2>
 <blockquote>
@@ -369,7 +696,7 @@
 <p>最坏情况是 O(n²)，可以通过随机 pivot 优化。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-27T05:32:46.589037+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-27T05:54:28.500480+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
