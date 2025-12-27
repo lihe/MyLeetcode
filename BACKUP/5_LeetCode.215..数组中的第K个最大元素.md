@@ -1,6 +1,5 @@
 # [LeetCode 215. 数组中的第K个最大元素](https://github.com/lihe/MyLeetcode/issues/5)
 
-
 https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/
 
 
@@ -424,4 +423,371 @@ def topk_sort_right(nums, k):
 ------
 
 
+
+# **进阶：无序数组找中位数（字节高频题）**
+
+
+
+
+
+------
+
+
+
+
+
+## **一、题目描述（面试原型）**
+
+
+
+
+
+> 给定一个**无序数组**，在 **不排序整个数组** 的前提下，找到数组的 **中位数**，并分析时间复杂度。
+
+
+
+------
+
+
+
+
+
+## **二、「一句话答案」**
+
+
+
+
+
+> 无序数组找中位数是一个**选择问题**，
+
+> 可以用 **Quickselect（基于 Partition）**，
+
+> 平均时间复杂度是 **O(n)**，空间复杂度 **O(1)**。
+
+
+
+------
+
+
+
+
+
+## **三、中位数 = 第 k 小元素（关键映射）**
+
+
+
+
+
+设数组长度为 n（0-based 索引）：
+
+
+
+
+
+### **1️⃣ n 为奇数**
+
+
+
+```
+中位数 = 第 (n//2 + 1) 小
+索引 = n//2
+```
+
+
+
+### **2️⃣ n 为偶数（两种情况）**
+
+
+
+| **面试要求**   | **处理方式**                  |
+| -------------- | ----------------------------- |
+| 任意一个中位数 | 找第 n//2 小                  |
+| 数学中位数     | 找第 n//2 和 n//2 - 1，取平均 |
+
+
+
+
+------
+
+
+
+
+
+## **四、标准解法：Quickselect（核心）**
+
+
+
+
+
+
+### **1️⃣ 为什么不用排序？**
+
+
+
+
+
+> 排序是 O(n log n)，
+
+> 但中位数只需要一个元素的位置，不需要全局有序。
+
+
+
+这是面试官**一定会追问**的点。
+
+
+
+------
+
+
+
+
+
+### **2️⃣ Quickselect 思想**
+
+
+
+
+
+> 每一次 partition，都能确定一个元素的最终位置
+
+> 如果这个位置正好是中位数索引，直接返回
+
+> 否则只递归一边
+
+
+
+------
+
+
+
+
+
+## **五、代码模板**
+
+
+
+
+
+
+
+### **Partition（挖坑法）**
+
+
+
+```python
+def partition(nums, left, right):
+    pivot = nums[left]
+    i, j = left, right
+    while i < j:
+        while i < j and nums[j] >= pivot:
+            j -= 1
+        nums[i] = nums[j]
+        while i < j and nums[i] <= pivot:
+            i += 1
+        nums[j] = nums[i]
+    nums[i] = pivot
+    return i
+```
+
+
+
+------
+
+
+
+
+
+### **Quickselect**
+
+
+
+```python
+def quickselect(nums, k, left, right):
+    if left < right:
+        index = partition(nums, left, right)
+        if index == k:
+            return
+        elif index < k:
+            quickselect(nums, k, index + 1, right)
+        else:
+            quickselect(nums, k, left, index - 1)
+```
+
+
+
+------
+
+
+
+
+
+### **找中位数（奇数长度）**
+
+
+
+```python
+def find_median(nums):
+    n = len(nums)
+    k = n // 2
+    quickselect(nums, k, 0, n - 1)
+    return nums[k]
+```
+
+
+
+------
+
+
+
+
+
+## **六、时间复杂度分析**
+
+
+
+
+
+
+
+### **平均时间复杂度：✅ O(n)**
+
+
+
+
+
+- 每次 partition 是 O(n)
+- 但只递归一半
+- 所以是线性期望
+
+
+
+
+
+
+------
+
+
+
+
+
+### **最坏时间复杂度：⚠️ O(n²)**
+
+
+
+
+
+- pivot 每次都选到极端值（如已排序数组）
+
+
+
+
+
+------
+
+
+
+
+
+### **优化一句话**
+
+
+
+
+
+> 可以通过 **随机选 pivot** 或 **三数取中**，
+
+> 将最坏情况概率极大降低。
+
+
+
+------
+
+
+
+## **七、面试官可能的追问 & 标准回答**
+
+
+
+
+
+
+
+### **Q1：如果是数据流，怎么找中位数？**
+
+
+
+
+
+> 使用两个堆：
+
+
+
+- > 一个大根堆存左半部分
+
+- > 一个小根堆存右半部分
+
+  > 动态维护平衡
+
+
+
+
+
+
+------
+
+
+
+
+
+### **Q2：为什么 Quickselect 不稳定？**
+
+
+
+
+
+> 因为 Partition 会交换相等元素的相对顺序，
+
+> 不保证稳定性。
+
+
+
+------
+
+
+
+
+
+### **Q3：你会不会用堆来做？**
+
+
+
+
+
+> 会，但堆是 O(n log n) 或 O(n log k)，在静态数组中不如 Quickselect 高效。
+
+
+
+------
+
+
+
+
+
+## **八、30 秒「字节标准回答模板」（可直接背）**
+
+
+
+
+
+> 无序数组找中位数可以转化为选择问题。
+
+> 我会使用基于 Partition 的 Quickselect 算法，在平均 O(n) 时间内把中位数放到正确位置。
+
+> 相比排序的 O(n log n)，效率更高。
+
+> 最坏情况是 O(n²)，可以通过随机 pivot 优化。
+
+
+
+------
 

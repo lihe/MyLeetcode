@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-25T14:54:56.667583+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-25T14:54:57.110460+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-27T05:32:46.179385+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-27T05:32:46.441685+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
 <hr />
 <h2><strong>一、TopK 问题的本质</strong></h2>
 <blockquote>
@@ -201,7 +201,175 @@
 <p>如果需要排序前 / 后 k 个元素，只在局部再做一次排序即可。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-25T14:54:57.329060+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+<h1><strong>进阶：无序数组找中位数（字节高频题）</strong></h1>
+<hr />
+<h2><strong>一、题目描述（面试原型）</strong></h2>
+<blockquote>
+<p>给定一个<strong>无序数组</strong>，在 <strong>不排序整个数组</strong> 的前提下，找到数组的 <strong>中位数</strong>，并分析时间复杂度。</p>
+</blockquote>
+<hr />
+<h2><strong>二、「一句话答案」</strong></h2>
+<blockquote>
+<p>无序数组找中位数是一个<strong>选择问题</strong>，</p>
+</blockquote>
+<blockquote>
+<p>可以用 <strong>Quickselect（基于 Partition）</strong>，</p>
+</blockquote>
+<blockquote>
+<p>平均时间复杂度是 <strong>O(n)</strong>，空间复杂度 <strong>O(1)</strong>。</p>
+</blockquote>
+<hr />
+<h2><strong>三、中位数 = 第 k 小元素（关键映射）</strong></h2>
+<p>设数组长度为 n（0-based 索引）：</p>
+<h3><strong>1️⃣ n 为奇数</strong></h3>
+<pre><code>中位数 = 第 (n//2 + 1) 小
+索引 = n//2
+</code></pre>
+<h3><strong>2️⃣ n 为偶数（两种情况）</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>面试要求</strong></th>
+<th><strong>处理方式</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任意一个中位数</td>
+<td>找第 n//2 小</td>
+</tr>
+<tr>
+<td>数学中位数</td>
+<td>找第 n//2 和 n//2 - 1，取平均</td>
+</tr>
+</tbody></table><hr />
+<h2><strong>四、标准解法：Quickselect（核心）</strong></h2>
+<h3><strong>1️⃣ 为什么不用排序？</strong></h3>
+<blockquote>
+<p>排序是 O(n log n)，</p>
+</blockquote>
+<blockquote>
+<p>但中位数只需要一个元素的位置，不需要全局有序。</p>
+</blockquote>
+<p>这是面试官<strong>一定会追问</strong>的点。</p>
+<hr />
+<h3><strong>2️⃣ Quickselect 思想</strong></h3>
+<blockquote>
+<p>每一次 partition，都能确定一个元素的最终位置</p>
+</blockquote>
+<blockquote>
+<p>如果这个位置正好是中位数索引，直接返回</p>
+</blockquote>
+<blockquote>
+<p>否则只递归一边</p>
+</blockquote>
+<hr />
+<h2><strong>五、代码模板</strong></h2>
+<h3><strong>Partition（挖坑法）</strong></h3>
+<pre><code class="language-python">def partition(nums, left, right):
+    pivot = nums[left]
+    i, j = left, right
+    while i &lt; j:
+        while i &lt; j and nums[j] &gt;= pivot:
+            j -= 1
+        nums[i] = nums[j]
+        while i &lt; j and nums[i] &lt;= pivot:
+            i += 1
+        nums[j] = nums[i]
+    nums[i] = pivot
+    return i
+</code></pre>
+<hr />
+<h3><strong>Quickselect</strong></h3>
+<pre><code class="language-python">def quickselect(nums, k, left, right):
+    if left &lt; right:
+        index = partition(nums, left, right)
+        if index == k:
+            return
+        elif index &lt; k:
+            quickselect(nums, k, index + 1, right)
+        else:
+            quickselect(nums, k, left, index - 1)
+</code></pre>
+<hr />
+<h3><strong>找中位数（奇数长度）</strong></h3>
+<pre><code class="language-python">def find_median(nums):
+    n = len(nums)
+    k = n // 2
+    quickselect(nums, k, 0, n - 1)
+    return nums[k]
+</code></pre>
+<hr />
+<h2><strong>六、时间复杂度分析</strong></h2>
+<h3><strong>平均时间复杂度：✅ O(n)</strong></h3>
+<ul>
+<li>每次 partition 是 O(n)</li>
+<li>但只递归一半</li>
+<li>所以是线性期望</li>
+</ul>
+<hr />
+<h3><strong>最坏时间复杂度：⚠️ O(n²)</strong></h3>
+<ul>
+<li>pivot 每次都选到极端值（如已排序数组）</li>
+</ul>
+<hr />
+<h3><strong>优化一句话</strong></h3>
+<blockquote>
+<p>可以通过 <strong>随机选 pivot</strong> 或 <strong>三数取中</strong>，</p>
+</blockquote>
+<blockquote>
+<p>将最坏情况概率极大降低。</p>
+</blockquote>
+<hr />
+<h2><strong>七、面试官可能的追问 &amp; 标准回答</strong></h2>
+<h3><strong>Q1：如果是数据流，怎么找中位数？</strong></h3>
+<blockquote>
+<p>使用两个堆：</p>
+</blockquote>
+<ul>
+<li>
+<blockquote>
+<p>一个大根堆存左半部分</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>一个小根堆存右半部分</p>
+</blockquote>
+<blockquote>
+<p>动态维护平衡</p>
+</blockquote>
+</li>
+</ul>
+<hr />
+<h3><strong>Q2：为什么 Quickselect 不稳定？</strong></h3>
+<blockquote>
+<p>因为 Partition 会交换相等元素的相对顺序，</p>
+</blockquote>
+<blockquote>
+<p>不保证稳定性。</p>
+</blockquote>
+<hr />
+<h3><strong>Q3：你会不会用堆来做？</strong></h3>
+<blockquote>
+<p>会，但堆是 O(n log n) 或 O(n log k)，在静态数组中不如 Quickselect 高效。</p>
+</blockquote>
+<hr />
+<h2><strong>八、30 秒「字节标准回答模板」（可直接背）</strong></h2>
+<blockquote>
+<p>无序数组找中位数可以转化为选择问题。</p>
+</blockquote>
+<blockquote>
+<p>我会使用基于 Partition 的 Quickselect 算法，在平均 O(n) 时间内把中位数放到正确位置。</p>
+</blockquote>
+<blockquote>
+<p>相比排序的 O(n log n)，效率更高。</p>
+</blockquote>
+<blockquote>
+<p>最坏情况是 O(n²)，可以通过随机 pivot 优化。</p>
+</blockquote>
+<hr />
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-27T05:32:46.589037+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
