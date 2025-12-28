@@ -1,5 +1,173 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-27T05:54:27.879616+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-27T05:54:28.202301+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-28T04:42:38.134401+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2025-12-28T04:42:38.424425+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
+<hr />
+<h2><strong>一、这题为什么能用 O(n)？</strong></h2>
+<p>题目里有一个<strong>隐藏但决定性的条件</strong>：</p>
+<blockquote>
+<p><strong>nums 中全是正整数</strong></p>
+</blockquote>
+<p>这意味着：</p>
+<ul>
+<li>窗口右扩 → 和 <strong>只会变大</strong></li>
+<li>窗口左缩 → 和 <strong>只会变小</strong></li>
+</ul>
+<p>👉 <strong>窗口具有单调性</strong></p>
+<p>👉 <strong>可以用滑动窗口，而不是暴力枚举</strong></p>
+<hr />
+<h2><strong>二、O(n) 解法：滑动窗口</strong></h2>
+<h3><strong>核心思想</strong></h3>
+<blockquote>
+<p>用两个指针维护一个窗口，右指针负责扩展直到满足条件，左指针负责收缩以缩短长度。</p>
+</blockquote>
+<hr />
+<h2><strong>三、标准代码</strong></h2>
+<pre><code class="language-python">class Solution:
+    def minSubArrayLen(self, target, nums):
+        left = 0
+        curr_sum = 0
+        res = float(&#x27;inf&#x27;)
+
+        for right in range(len(nums)):
+            curr_sum += nums[right]
+
+            while curr_sum &gt;= target:
+                res = min(res, right - left + 1)
+                curr_sum -= nums[left]
+                left += 1
+
+        return 0 if res == float(&#x27;inf&#x27;) else res
+</code></pre>
+<hr />
+<h2><strong>四、手动走一遍</strong></h2>
+<h3><strong>示例 1</strong></h3>
+<pre><code>target = 7
+nums = [2,3,1,2,4,3]
+</code></pre>
+<p>初始化：</p>
+<pre><code>left=0, curr_sum=0, res=∞
+</code></pre>
+<h3><strong>过程关键片段：</strong></h3>
+<p>1️⃣ right=3 → curr_sum = 8</p>
+<p>满足条件，开始收缩：</p>
+<ul>
+<li>res = 4</li>
+<li>去掉 nums[0]=2 → sum=6（不满足）</li>
+</ul>
+<p>2️⃣ right=4 → curr_sum = 10</p>
+<p>收缩：</p>
+<ul>
+<li>res = 4</li>
+<li>去掉 nums[1]=3 → sum=7</li>
+<li>res = 3</li>
+<li>去掉 nums[2]=1 → sum=6（停止）</li>
+</ul>
+<p>3️⃣ right=5 → curr_sum = 9</p>
+<p>收缩：</p>
+<ul>
+<li>res = 3</li>
+<li>去掉 nums[3]=2 → sum=7</li>
+<li>res = 2</li>
+<li>去掉 nums[4]=4 → sum=3</li>
+</ul>
+<p>最终：</p>
+<pre><code>res = 2
+</code></pre>
+<hr />
+<h2><strong>五、为什么时间复杂度是 O(n)？</strong></h2>
+<p>虽然看起来有两层循环：</p>
+<pre><code>for right in ...
+    while curr_sum &gt;= target
+</code></pre>
+<p>但注意：</p>
+<ul>
+<li>right 只走一遍</li>
+<li>left 也只走一遍</li>
+</ul>
+<p>👉 <strong>每个元素最多被加一次、减一次</strong></p>
+<p>所以是：</p>
+<pre><code>O(n)
+</code></pre>
+<hr />
+<h2><strong>六、常见错误</strong></h2>
+<h3><strong>❌ 错误 1：用 if 而不是 while</strong></h3>
+<pre><code>if curr_sum &gt;= target:   # ❌
+</code></pre>
+<p>👉 你会错过更短的子数组</p>
+<hr />
+<h3><strong>❌ 错误 2：没意识到“正整数”是前提</strong></h3>
+<p>如果 nums 里有负数：</p>
+<ul>
+<li>滑动窗口 ❌ 不成立</li>
+<li>要换方法（前缀和 + 二分 / 哈希）</li>
+</ul>
+<hr />
+<h3><strong>❌ 错误 3：忘记返回 0 的情况</strong></h3>
+<hr />
+<h2><strong>七、进阶：O(n log n) 解法</strong></h2>
+<h3><strong>思路</strong></h3>
+<ul>
+<li>用 <strong>前缀和</strong></li>
+<li>对每个起点 i</li>
+<li>二分找最小的 j，使：</li>
+</ul>
+<p>$prefix[j] - prefix[i] \ge target$</p>
+<hr />
+<h3><strong>代码</strong></h3>
+<pre><code class="language-python">import bisect
+
+class Solution:
+    def minSubArrayLen(self, target, nums):
+        n = len(nums)
+        prefix = [0] * (n + 1)
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + nums[i]
+
+        res = float(&#x27;inf&#x27;)
+        for i in range(n):
+            need = target + prefix[i]
+            j = bisect.bisect_left(prefix, need)
+            if j &lt;= n:
+                res = min(res, j - i)
+
+        return 0 if res == float(&#x27;inf&#x27;) else res
+</code></pre>
+<hr />
+<h3><strong>复杂度</strong></h3>
+<ul>
+<li>构建前缀和：O(n)</li>
+<li>每次二分：O(log n)</li>
+<li>总体：O(n log n)</li>
+</ul>
+<hr />
+<h2><strong>八、O(n) vs O(n log n) 怎么选？</strong></h2>
+<blockquote>
+<p>因为数组元素全为正数，滑动窗口具有单调性，所以可以用 O(n) 的双指针解法。</p>
+</blockquote>
+<blockquote>
+<p>如果不满足单调性，或者需要支持更复杂查询，可以用前缀和加二分。</p>
+</blockquote>
+<hr />
+<h2><strong>九、这道题在“滑动窗口体系”中的地位</strong></h2>
+<p>这是 <strong>最标准的滑动窗口模型</strong>：</p>
+<ul>
+<li>固定条件：sum &gt;= target</li>
+<li>优化目标：<strong>窗口长度最小</strong></li>
+</ul>
+<p>你后面会遇到大量同构题：</p>
+<ul>
+<li>最长 / 最短子数组</li>
+<li>满足条件的子串</li>
+<li>至多 / 至少 K 个元素</li>
+</ul>
+<p>👉 <strong>模板一模一样</strong></p>
+<p>看到题目出现：</p>
+<ul>
+<li>连续子数组</li>
+<li>全是正数</li>
+<li>求最短 / 最长</li>
+</ul>
+<p><strong>第一反应：滑动窗口</strong></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-28T04:42:38.549053+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
 <h2><strong>一、核心结论</strong></h2>
 <blockquote>
 <p><strong>有序数组 + O(log n)</strong></p>
@@ -326,7 +494,7 @@ target = 2
 <p><strong>找最后一个：命中后左边界右移</strong></p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-27T05:54:28.339345+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-28T04:42:38.669928+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
 <hr />
 <h2><strong>一、TopK 问题的本质</strong></h2>
 <blockquote>
@@ -696,7 +864,7 @@ target = 2
 <p>最坏情况是 O(n²)，可以通过随机 pivot 优化。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-27T05:54:28.500480+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-28T04:42:38.797260+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
