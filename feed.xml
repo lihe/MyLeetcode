@@ -1,5 +1,157 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-28T05:58:15.899437+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/8</id><title>LeetCode 59：螺旋矩阵 II</title><updated>2025-12-28T05:58:16.289062+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/spiral-matrix-ii/">https://leetcode.cn/problems/spiral-matrix-ii/</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-28T06:26:25.668179+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/9</id><title>LeetCode 15：三数之和（3Sum）</title><updated>2025-12-28T06:26:26.040900+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/3sum/">https://leetcode.cn/problems/3sum/</a></p>
+<h2><strong>一、这道题的关键难点是什么？</strong></h2>
+<p>不是“能不能找到三个数”，而是：</p>
+<blockquote>
+<p><strong>如何在不重复的前提下，找全所有和为 0 的三元组</strong></p>
+</blockquote>
+<p>核心难点只有两个：</p>
+<ol>
+<li><strong>去重</strong></li>
+<li><strong>把暴力 O(n³) 降到 O(n²)</strong></li>
+</ol>
+<hr />
+<h2><strong>二、核心思路</strong></h2>
+<h3><strong>一句话版本</strong></h3>
+<blockquote>
+<p><strong>先排序，然后固定一个数，用双指针在右侧区间内找另外两个数。</strong></p>
+</blockquote>
+<hr />
+<h2><strong>三、为什么要排序？</strong></h2>
+<p>排序后可以：</p>
+<ol>
+<li>使用双指针（利用单调性）</li>
+<li>轻松去重（相同元素会相邻）</li>
+</ol>
+<hr />
+<h2><strong>四、标准解法（O(n²)，强烈推荐）</strong></h2>
+<pre><code class="language-python">class Solution:
+    def threeSum(self, nums):
+        nums.sort()
+        res = []
+        n = len(nums)
+
+        for i in range(n):
+            # 1️⃣ 剪枝：最小值已经 &gt; 0，不可能再凑出 0
+            if nums[i] &gt; 0:
+                break
+
+            # 2️⃣ 去重：跳过重复的 nums[i]
+            if i &gt; 0 and nums[i] == nums[i - 1]:
+                continue
+
+            left, right = i + 1, n - 1
+
+            while left &lt; right:
+                total = nums[i] + nums[left] + nums[right]
+
+                if total == 0:
+                    res.append([nums[i], nums[left], nums[right]])
+
+                    # 3️⃣ 去重：跳过重复的 left
+                    while left &lt; right and nums[left] == nums[left + 1]:
+                        left += 1
+                    # 4️⃣ 去重：跳过重复的 right
+                    while left &lt; right and nums[right] == nums[right - 1]:
+                        right -= 1
+
+                    left += 1
+                    right -= 1
+
+                elif total &lt; 0:
+                    left += 1
+                else:
+                    right -= 1
+
+        return res
+</code></pre>
+<hr />
+<h2><strong>五、手动走一遍</strong></h2>
+<h3><strong>示例</strong></h3>
+<pre><code>nums = [-1,0,1,2,-1,-4]
+</code></pre>
+<p>排序后：</p>
+<pre><code>[-4, -1, -1, 0, 1, 2]
+</code></pre>
+<h3><strong>i = 1（nums[i] = -1）</strong></h3>
+<ul>
+<li>left = 2（-1）</li>
+<li>right = 5（2）</li>
+<li>sum = 0 → 记录 [-1, -1, 2]</li>
+</ul>
+<p>继续：</p>
+<ul>
+<li>left = 3（0）</li>
+<li>right = 4（1）</li>
+<li>sum = 0 → 记录 [-1, 0, 1]</li>
+</ul>
+<p>完成。</p>
+<hr />
+<h2><strong>六、为什么这样能避免重复？</strong></h2>
+<h3><strong>去重一共</strong></h3>
+<h3><strong>三层</strong></h3>
+<h4><strong>1️⃣ 固定 i 时去重</strong></h4>
+<pre><code>if i &gt; 0 and nums[i] == nums[i - 1]:
+    continue
+</code></pre>
+<p>避免同一个数作为第一个元素重复出现。</p>
+<hr />
+<h4><strong>2️⃣ left 指针去重</strong></h4>
+<pre><code>while left &lt; right and nums[left] == nums[left + 1]:
+    left += 1
+</code></pre>
+<hr />
+<h4><strong>3️⃣ right 指针去重</strong></h4>
+<pre><code>while left &lt; right and nums[right] == nums[right - 1]:
+    right -= 1
+</code></pre>
+<hr />
+<h2><strong>七、时间 &amp; 空间复杂度</strong></h2>
+<ul>
+<li>
+<p>时间复杂度：</p>
+<ul>
+<li>排序：O(n log n)</li>
+<li>双指针：O(n²)</li>
+<li>总体：<strong>O(n²)</strong></li>
+</ul>
+</li>
+<li>
+<p>空间复杂度：</p>
+<ul>
+<li>排序：O(log n)（Python 内部）</li>
+<li>结果集不算额外空间</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2><strong>八、常见错误</strong></h2>
+<h3><strong>❌ 错误 1：忘记排序</strong></h3>
+<p>👉 双指针失效 + 无法去重</p>
+<hr />
+<h3><strong>❌ 错误 2：去重写错位置</strong></h3>
+<pre><code>if nums[left] == nums[left + 1]: left += 1  # ❌ 只跳一次
+</code></pre>
+<p>👉 必须用 while</p>
+<hr />
+<h3><strong>❌ 错误 3：没做剪枝</strong></h3>
+<pre><code>if nums[i] &gt; 0: break
+</code></pre>
+<p>👉 会做很多无效计算</p>
+<hr />
+<h2><strong>九、面试标准回答模板</strong></h2>
+<blockquote>
+<p>我先对数组进行排序，然后固定一个数，使用双指针在其右侧查找另外两个数，使三数之和为 0。通过在固定元素和双指针移动过程中跳过重复值，保证结果中不包含重复三元组，时间复杂度为 O(n²)。</p>
+</blockquote>
+<hr />
+<p>看到题目出现：</p>
+<ul>
+<li>三数之和 / 四数之和</li>
+<li>去重</li>
+<li>不要求下标，只要组合</li>
+</ul>
+<p>👉 <strong>排序 + 双指针</strong></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/9"/><category term="数组"/><published>2025-12-28T06:25:58+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/8</id><title>LeetCode 59：螺旋矩阵 II</title><updated>2025-12-28T06:26:26.222772+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/spiral-matrix-ii/">https://leetcode.cn/problems/spiral-matrix-ii/</a></p>
 <h2><strong>一、核心思路</strong></h2>
 <blockquote>
 <p>用 <strong>四个边界</strong> 控制方向：</p>
@@ -143,7 +295,7 @@ if left &lt;= right:
 <p>我通过维护上下左右四个边界来模拟螺旋填充，每次按照右、下、左、上的顺序填数，并在填完一条边后收缩对应边界，直到所有元素填完。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/8"/><category term="数组"/><published>2025-12-28T05:57:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2025-12-28T05:58:16.446894+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/8"/><category term="数组"/><published>2025-12-28T05:57:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2025-12-28T06:26:26.430712+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
 <hr />
 <h2><strong>一、这题为什么能用 O(n)？</strong></h2>
 <p>题目里有一个<strong>隐藏但决定性的条件</strong>：</p>
@@ -311,7 +463,7 @@ class Solution:
 <li>求最短 / 最长</li>
 </ul>
 <p><strong>第一反应：滑动窗口</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-28T05:58:16.652508+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-28T06:26:26.605698+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
 <h2><strong>一、核心结论</strong></h2>
 <blockquote>
 <p><strong>有序数组 + O(log n)</strong></p>
@@ -638,7 +790,7 @@ target = 2
 <p><strong>找最后一个：命中后左边界右移</strong></p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-28T05:58:16.838926+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-28T06:26:26.789073+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
 <hr />
 <h2><strong>一、TopK 问题的本质</strong></h2>
 <blockquote>
@@ -1008,7 +1160,7 @@ target = 2
 <p>最坏情况是 O(n²)，可以通过随机 pivot 优化。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-28T05:58:17.024602+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-28T06:26:26.986612+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
