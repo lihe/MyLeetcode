@@ -1,5 +1,209 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-28T07:04:00.728994+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/11</id><title>LeetCode 203：移除链表元素</title><updated>2025-12-28T07:04:01.197263+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/remove-linked-list-elements/">https://leetcode.cn/problems/remove-linked-list-elements/</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2025-12-28T13:43:56.013289+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/12</id><title>LeetCode 707：设计链表</title><updated>2025-12-28T13:43:56.401326+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/design-linked-list/description/">https://leetcode.cn/problems/design-linked-list/description/</a></p>
+<h1><strong>一、设计选择</strong></h1>
+<p>👉 <strong>选择：单链表 + 虚拟头节点（dummy） + 记录长度</strong></p>
+<p>为什么？</p>
+<table>
+<thead>
+<tr>
+<th><strong>设计</strong></th>
+<th><strong>好处</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单链表</td>
+<td>结构简单、好写</td>
+</tr>
+<tr>
+<td>dummy</td>
+<td>所有操作不用特判 index=0</td>
+</tr>
+<tr>
+<td>size</td>
+<td>快速判断 index 合法性</td>
+</tr>
+</tbody></table><p>这套设计是 <strong>最稳、最不容易出 bug 的</strong>。</p>
+<hr />
+<h1><strong>二、链表节点定义</strong></h1>
+<pre><code class="language-python">class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+</code></pre>
+<hr />
+<h1><strong>三、MyLinkedList 完整实现</strong></h1>
+<pre><code class="language-python">class MyLinkedList:
+
+    def __init__(self):
+        self.dummy = ListNode(0)
+        self.size = 0
+
+    def get(self, index):
+        if index &lt; 0 or index &gt;= self.size:
+            return -1
+
+        cur = self.dummy.next
+        for _ in range(index):
+            cur = cur.next
+        return cur.val
+
+    def addAtHead(self, val):
+        self.addAtIndex(0, val)
+
+    def addAtTail(self, val):
+        self.addAtIndex(self.size, val)
+
+    def addAtIndex(self, index, val):
+        if index &lt; 0 or index &gt; self.size:
+            return
+
+        prev = self.dummy
+        for _ in range(index):
+            prev = prev.next
+
+        node = ListNode(val)
+        node.next = prev.next
+        prev.next = node
+        self.size += 1
+
+    def deleteAtIndex(self, index):
+        if index &lt; 0 or index &gt;= self.size:
+            return
+
+        prev = self.dummy
+        for _ in range(index):
+            prev = prev.next
+
+        prev.next = prev.next.next
+        self.size -= 1
+</code></pre>
+<hr />
+<h1><strong>四、逐个方法讲清楚“为什么这样写”</strong></h1>
+<h2><strong>1️⃣</strong></h2>
+<h2><strong>get(index)</strong></h2>
+<pre><code>if index &lt; 0 or index &gt;= self.size:
+    return -1
+</code></pre>
+<ul>
+<li>链表 <strong>不能随机访问</strong></li>
+<li>必须从头走 index 步</li>
+</ul>
+<p>👉 时间复杂度：O(index)</p>
+<hr />
+<h2><strong>2️⃣</strong></h2>
+<h2><strong>addAtHead(val)</strong></h2>
+<pre><code>self.addAtIndex(0, val)
+</code></pre>
+<p>🔥 <strong>关键点</strong>：</p>
+<p><strong>所有插入统一走 addAtIndex</strong></p>
+<hr />
+<h2><strong>3️⃣</strong></h2>
+<h2><strong>addAtTail(val)</strong></h2>
+<pre><code>self.addAtIndex(self.size, val)
+</code></pre>
+<p>当 index == size：</p>
+<p>👉 插入到尾部（题目明确允许）</p>
+<hr />
+<h2><strong>4️⃣</strong></h2>
+<h2><strong>addAtIndex(index, val)</strong></h2>
+<h3><strong>核心逻辑</strong></h3>
+<pre><code>prev = self.dummy
+for _ in range(index):
+    prev = prev.next
+</code></pre>
+<ul>
+<li>找到 <strong>index 前一个节点</strong></li>
+<li>插入操作永远是：</li>
+</ul>
+<pre><code>prev → new → prev.next
+</code></pre>
+<h3><strong>插入代码</strong></h3>
+<pre><code>node.next = prev.next
+prev.next = node
+</code></pre>
+<hr />
+<h2><strong>5️⃣</strong></h2>
+<h2><strong>deleteAtIndex(index)</strong></h2>
+<h3><strong>删除的本质</strong></h3>
+<p>删除 index 节点</p>
+<p>👉 <strong>找到 index-1 的节点</strong></p>
+<pre><code>prev.next = prev.next.next
+</code></pre>
+<p>dummy 的存在让：</p>
+<ul>
+<li>删除头节点</li>
+<li>删除中间节点</li>
+</ul>
+<p><strong>写法完全一样</strong></p>
+<hr />
+<h1><strong>五、为什么 dummy 是“王炸设计”？</strong></h1>
+<p>如果不用 dummy：</p>
+<ul>
+<li>index == 0 要特判</li>
+<li>删除头节点要改 head</li>
+<li>插入头节点要写两套逻辑</li>
+</ul>
+<p>用了 dummy：</p>
+<blockquote>
+<p><strong>所有操作都当“中间节点”处理</strong></p>
+</blockquote>
+<p>这是链表题的<strong>工程级思维</strong>。</p>
+<hr />
+<h1><strong>六、复杂度分析</strong></h1>
+<table>
+<thead>
+<tr>
+<th><strong>操作</strong></th>
+<th><strong>时间复杂度</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>get</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>addAtHead</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>addAtTail</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>addAtIndex</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>deleteAtIndex</td>
+<td>O(n)</td>
+</tr>
+</tbody></table><p>空间复杂度：O(1)（不算节点本身）</p>
+<hr />
+<h1><strong>七、常见翻车点</strong></h1>
+<h3><strong>❌ 忘记更新 size</strong></h3>
+<pre><code>self.size += 1
+self.size -= 1
+</code></pre>
+<hr />
+<h3><strong>❌ index 合法范围写错</strong></h3>
+<ul>
+<li>插入：index &gt; size ❌</li>
+<li>删除：index &gt;= size ❌</li>
+</ul>
+<hr />
+<h3><strong>❌ 删除后还移动指针</strong></h3>
+<pre><code>prev = prev.next  # ❌ 删除时不能动
+</code></pre>
+<hr />
+<h1><strong>一句话终极总结</strong></h1>
+<blockquote>
+<p>通过虚拟头节点和长度记录，可以统一处理所有边界情况，使链表的增删查操作逻辑简洁且稳定。</p>
+</blockquote>
+<hr />
+<p>你选一个，我继续。</p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/12"/><category term="链表"/><published>2025-12-28T13:43:27+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/11</id><title>LeetCode 203：移除链表元素</title><updated>2025-12-28T13:43:56.522138+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/remove-linked-list-elements/">https://leetcode.cn/problems/remove-linked-list-elements/</a></p>
 <h2><strong>一、这道题的“真正难点”是什么？</strong></h2>
 <p>不是删中间节点，而是：</p>
 <blockquote>
@@ -126,7 +330,7 @@ cur = cur.next   # ❌
 <li>删除条件是某个值</li>
 </ul>
 <p>👉 <strong>第一反应：dummy 虚拟头节点</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/11"/><category term="链表"/><published>2025-12-28T07:03:29+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/10</id><title>LeetCode 18：四数之和（4Sum）</title><updated>2025-12-28T07:04:01.421644+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/4sum/">
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/11"/><category term="链表"/><published>2025-12-28T07:03:29+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/10</id><title>LeetCode 18：四数之和（4Sum）</title><updated>2025-12-28T13:43:56.640144+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/4sum/">
 LeetCode 18：四数之和（4Sum）</a></p>
 <h2><strong>一、核心思路</strong></h2>
 <blockquote>
@@ -319,7 +523,7 @@ target = 0
 <blockquote>
 <p>我先对数组排序，通过两层循环固定前两个数，再在剩余区间内使用双指针查找另外两个数，使四数之和等于 target。通过在每一层跳过重复元素来保证结果不重复，整体时间复杂度是 O(n³)。</p>
 </blockquote>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/10"/><category term="数组"/><published>2025-12-28T06:37:15+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/9</id><title>LeetCode 15：三数之和（3Sum）</title><updated>2025-12-28T07:04:01.640442+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/3sum/">https://leetcode.cn/problems/3sum/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/10"/><category term="数组"/><published>2025-12-28T06:37:15+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/9</id><title>LeetCode 15：三数之和（3Sum）</title><updated>2025-12-28T13:43:56.762529+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/3sum/">https://leetcode.cn/problems/3sum/</a></p>
 <h2><strong>一、这道题的关键难点是什么？</strong></h2>
 <p>不是“能不能找到三个数”，而是：</p>
 <blockquote>
@@ -471,7 +675,7 @@ target = 0
 <li>不要求下标，只要组合</li>
 </ul>
 <p>👉 <strong>排序 + 双指针</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/9"/><category term="数组"/><published>2025-12-28T06:25:58+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/8</id><title>LeetCode 59：螺旋矩阵 II</title><updated>2025-12-28T07:04:01.838667+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/spiral-matrix-ii/">https://leetcode.cn/problems/spiral-matrix-ii/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/9"/><category term="数组"/><published>2025-12-28T06:25:58+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/8</id><title>LeetCode 59：螺旋矩阵 II</title><updated>2025-12-28T13:43:56.915134+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/spiral-matrix-ii/">https://leetcode.cn/problems/spiral-matrix-ii/</a></p>
 <h2><strong>一、核心思路</strong></h2>
 <blockquote>
 <p>用 <strong>四个边界</strong> 控制方向：</p>
@@ -615,7 +819,7 @@ if left &lt;= right:
 <p>我通过维护上下左右四个边界来模拟螺旋填充，每次按照右、下、左、上的顺序填数，并在填完一条边后收缩对应边界，直到所有元素填完。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/8"/><category term="数组"/><published>2025-12-28T05:57:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2025-12-28T07:04:02.029225+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/8"/><category term="数组"/><published>2025-12-28T05:57:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2025-12-28T13:43:57.025364+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
 <hr />
 <h2><strong>一、这题为什么能用 O(n)？</strong></h2>
 <p>题目里有一个<strong>隐藏但决定性的条件</strong>：</p>
@@ -783,7 +987,7 @@ class Solution:
 <li>求最短 / 最长</li>
 </ul>
 <p><strong>第一反应：滑动窗口</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-28T07:04:02.253046+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2025-12-28T13:43:57.135585+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
 <h2><strong>一、核心结论</strong></h2>
 <blockquote>
 <p><strong>有序数组 + O(log n)</strong></p>
@@ -1110,7 +1314,7 @@ target = 2
 <p><strong>找最后一个：命中后左边界右移</strong></p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-28T07:04:02.584650+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2025-12-28T13:43:57.266775+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
 <hr />
 <h2><strong>一、TopK 问题的本质</strong></h2>
 <blockquote>
@@ -1480,7 +1684,7 @@ target = 2
 <p>最坏情况是 O(n²)，可以通过随机 pivot 优化。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-28T07:04:02.787916+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2025-12-28T13:43:57.398625+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
