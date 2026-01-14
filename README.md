@@ -13,11 +13,11 @@ My personal blog using issues and GitHub Actions (参考[yihong](https://github.
 [RSS Feed](https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml)
 
 ## 最近更新
+- [Leetcode 150： 逆波兰表达式求值](https://github.com/lihe/MyLeetcode/issues/21)--2026-01-14
 - [LeetCode 232: 用栈实现队列](https://github.com/lihe/MyLeetcode/issues/20)--2026-01-12
 - [LeetCode 28：实现 strStr()（子串查找）](https://github.com/lihe/MyLeetcode/issues/19)--2026-01-11
 - [LeetCode 151：反转字符串中的单词](https://github.com/lihe/MyLeetcode/issues/18)--2026-01-08
 - [LeetCode 541：反转字符串 II](https://github.com/lihe/MyLeetcode/issues/17)--2026-01-06
-- [LeetCode 142：环形链表 II（找环的入口）](https://github.com/lihe/MyLeetcode/issues/16)--2026-01-04
 ## 字符串
 - [LeetCode 28：实现 strStr()（子串查找）](https://github.com/lihe/MyLeetcode/issues/19)--2026-01-11
 - [LeetCode 151：反转字符串中的单词](https://github.com/lihe/MyLeetcode/issues/18)--2026-01-08
@@ -34,6 +34,7 @@ My personal blog using issues and GitHub Actions (参考[yihong](https://github.
 </details>
 
 ## 栈与队列
+- [Leetcode 150： 逆波兰表达式求值](https://github.com/lihe/MyLeetcode/issues/21)--2026-01-14
 - [LeetCode 232: 用栈实现队列](https://github.com/lihe/MyLeetcode/issues/20)--2026-01-12
 ## 链表
 - [LeetCode 142：环形链表 II（找环的入口）](https://github.com/lihe/MyLeetcode/issues/16)--2026-01-04

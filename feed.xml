@@ -1,5 +1,331 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2026-01-12T15:04:47.345715+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/20</id><title>LeetCode 232: 用栈实现队列</title><updated>2026-01-12T15:04:47.838971+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/implement-queue-using-stacks/"> LeetCode 232: 用队列实现栈</a></p>
+<feed xmlns="http://www.w3.org/2005/Atom"><id>https://github.com/lihe/MyLeetcode</id><title>RSS feed of lihe's MyLeetcode</title><updated>2026-01-14T15:12:51.907771+00:00</updated><link href="https://github.com/lihe/MyLeetcode"/><link href="https://raw.githubusercontent.com/lihe/MyLeetcode/master/feed.xml" rel="self"/><generator uri="https://lkiesow.github.io/python-feedgen" version="1.0.0">python-feedgen</generator><entry><id>https://github.com/lihe/MyLeetcode/issues/21</id><title>Leetcode 150： 逆波兰表达式求值</title><updated>2026-01-14T15:12:52.253927+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/evaluate-reverse-polish-notation/">150. 逆波兰表达式求值</a></p>
+<h1><strong>一、一句话核心思想</strong></h1>
+<blockquote>
+<p><strong>遇到数字入栈，遇到运算符就弹出两个数计算，再把结果压回栈中。</strong></p>
+</blockquote>
+<p>因为 <strong>逆波兰表达式（后缀表达式）本身已经把“运算顺序”编码进顺序里了</strong>，</p>
+<p>所以：<strong>不需要括号、不需要优先级判断</strong>。</p>
+<hr />
+<h1><strong>二、为什么一定要用栈？</strong></h1>
+<p>逆波兰表达式的结构是：</p>
+<pre><code>操作数 操作数 运算符
+</code></pre>
+<p>这意味着：</p>
+<ul>
+<li>运算符 <strong>总是作用在它前面的两个“最近结果”上</strong></li>
+<li>最近的结果 → <strong>后进先出</strong></li>
+<li>👉 天然符合 <strong>栈（LIFO）</strong></li>
+</ul>
+<hr />
+<h1><strong>三、动画式走一遍示例 1</strong></h1>
+<h3><strong>示例 1</strong></h3>
+<pre><code>tokens = [&quot;2&quot;,&quot;1&quot;,&quot;+&quot;,&quot;3&quot;,&quot;*&quot;]
+</code></pre>
+<h3><strong>初始化</strong></h3>
+<pre><code>stack = []
+</code></pre>
+<h3><strong>逐个处理</strong></h3>
+<h4><strong>1️⃣ “2”（数字）</strong></h4>
+<pre><code>stack = [2]
+</code></pre>
+<h4><strong>2️⃣ “1”（数字）</strong></h4>
+<pre><code>stack = [2, 1]
+</code></pre>
+<h4><strong>3️⃣ “+”（运算符）</strong></h4>
+<ul>
+<li>弹出两个数：1 和 2</li>
+<li>计算：2 + 1 = 3</li>
+<li>压回栈</li>
+</ul>
+<pre><code>stack = [3]
+</code></pre>
+<h4><strong>4️⃣ “3”（数字）</strong></h4>
+<pre><code>stack = [3, 3]
+</code></pre>
+<h4><strong>5️⃣ “*”（运算符）</strong></h4>
+<ul>
+<li>弹出：3 和 3</li>
+<li>计算：3 * 3 = 9</li>
+<li>压回</li>
+</ul>
+<pre><code>stack = [9]
+</code></pre>
+<h3><strong>结束</strong></h3>
+<p>栈中唯一的数，就是答案 👉 <strong>9</strong></p>
+<hr />
+<h1><strong>四、特别容易踩的坑</strong></h1>
+<h2><strong>1️⃣ 减法和除法的顺序不能反</strong></h2>
+<pre><code>b = stack.pop()
+a = stack.pop()
+result = a - b   # 不是 b - a
+</code></pre>
+<p>同理：</p>
+<pre><code>result = a / b
+</code></pre>
+<hr />
+<h2><strong>2️⃣ Python 的除法问题（重点）</strong></h2>
+<p>题目要求：</p>
+<blockquote>
+<p><strong>向 0 截断</strong></p>
+</blockquote>
+<p>Python 的 // 是 <strong>向下取整</strong>，不符合要求！</p>
+<h3><strong>❌ 错误写法</strong></h3>
+<pre><code>a // b
+</code></pre>
+<h3><strong>✅ 正确写法</strong></h3>
+<pre><code>int(a / b)
+</code></pre>
+<p>因为 int() 是 <strong>向 0 截断</strong></p>
+<hr />
+<h1><strong>五、标准 Python 解法</strong></h1>
+<pre><code class="language-python">class Solution:
+    def evalRPN(self, tokens: list[str]) -&gt; int:
+        stack = []
+        
+        for token in tokens:
+            if token not in {&quot;+&quot;, &quot;-&quot;, &quot;*&quot;, &quot;/&quot;}:
+                stack.append(int(token))
+            else:
+                b = stack.pop()
+                a = stack.pop()
+                
+                if token == &quot;+&quot;:
+                    stack.append(a + b)
+                elif token == &quot;-&quot;:
+                    stack.append(a - b)
+                elif token == &quot;*&quot;:
+                    stack.append(a * b)
+                else:  # &quot;/&quot;
+                    stack.append(int(a / b))  # 向 0 截断
+        
+        return stack[0]
+</code></pre>
+<hr />
+<h1><strong>六、复杂度分析</strong></h1>
+<ul>
+<li>
+<p>时间复杂度：<strong>O(n)</strong></p>
+<p>每个 token 只处理一次</p>
+</li>
+<li>
+<p>空间复杂度：<strong>O(n)</strong></p>
+<p>最坏情况下全是数字</p>
+</li>
+</ul>
+<hr />
+<h1><strong>七、面试一句话总结</strong></h1>
+<blockquote>
+<p>使用栈遍历逆波兰表达式，遇到数字入栈，遇到运算符则弹出栈顶两个元素进行计算，并将结果压回栈中。最终栈中剩下的元素即为表达式结果。</p>
+</blockquote>
+<p>好，这一题就是<strong>阿里一面/二面超级高频的「表达式求值·终极形态」</strong>。</p>
+<p>我直接按 <strong>面试官视角 + 你能现场手写</strong> 的方式讲。</p>
+<blockquote>
+<p>题目关键词：</p>
+</blockquote>
+<blockquote>
+<p><strong>字符串表达式 + 括号 + 四则运算</strong></p>
+</blockquote>
+<h1><strong>二、阿里一面变种题目原型</strong></h1>
+<blockquote>
+<p>给定一个字符串表达式 s，包含</p>
+</blockquote>
+<blockquote>
+<p>+ - * / ( ) 和整数，</p>
+</blockquote>
+<blockquote>
+<p>返回表达式的计算结果（向 0 取整）。</p>
+</blockquote>
+<p>例如：</p>
+<pre><code>s = &quot;(1+(4+5+2)-3)+(6+8)&quot;
+</code></pre>
+<p>答案：23</p>
+<hr />
+<h1><strong>三、核心解法总览</strong></h1>
+<p>阿里一面<strong>最稳妥的方案</strong>是：</p>
+<blockquote>
+<p>✅ <strong>两个栈</strong></p>
+</blockquote>
+<ul>
+<li>
+<blockquote>
+<p>数字栈 nums</p>
+</blockquote>
+</li>
+<li>
+<blockquote>
+<p>运算符栈 ops</p>
+</blockquote>
+</li>
+</ul>
+<p>并遵守三条规则。</p>
+<hr />
+<h1><strong>四、三条“铁律”</strong></h1>
+<h3><strong>规则 1️⃣</strong></h3>
+<p><strong>数字 → 直接进 nums 栈</strong></p>
+<hr />
+<h3><strong>规则 2️⃣</strong></h3>
+<p><strong>运算符 → 看优先级，能算就算</strong></p>
+<pre><code>当前运算符 &lt;= 栈顶运算符优先级
+→ 先计算
+</code></pre>
+<hr />
+<h3><strong>规则 3️⃣（最关键）</strong></h3>
+<p><strong>遇到右括号 ) → 一直算到左括号 (</strong></p>
+<hr />
+<h1><strong>五、运算符优先级表</strong></h1>
+<pre><code>* /  优先级高
++ -  优先级低
+(    最低（阻断计算）
+</code></pre>
+<hr />
+<h1><strong>六、完整动画式流程</strong></h1>
+<p>我们用这个例子：</p>
+<pre><code>s = &quot;(1+(4+5+2)-3)+(6+8)&quot;
+</code></pre>
+<hr />
+<h2><strong>🎬 初始化</strong></h2>
+<pre><code>nums = []
+ops  = []
+</code></pre>
+<hr />
+<h2><strong>🎬 读到 ‘(’</strong></h2>
+<pre><code>ops = [&#x27;(&#x27;]
+</code></pre>
+<blockquote>
+<p>左括号：<strong>只进栈，不计算</strong></p>
+</blockquote>
+<hr />
+<h2><strong>🎬 读到 ‘1’</strong></h2>
+<pre><code>nums = [1]
+</code></pre>
+<hr />
+<h2><strong>🎬 读到 ‘+’</strong></h2>
+<pre><code>ops = [&#x27;(&#x27;, &#x27;+&#x27;]
+</code></pre>
+<hr />
+<h2><strong>🎬 读到 ‘(’</strong></h2>
+<pre><code>ops = [&#x27;(&#x27;, &#x27;+&#x27;, &#x27;(&#x27;]
+</code></pre>
+<hr />
+<h2><strong>🎬 读到 ‘4 5 2’</strong></h2>
+<pre><code>nums = [1, 4, 5, 2]
+ops  = [&#x27;(&#x27;, &#x27;+&#x27;, &#x27;(&#x27;, &#x27;+&#x27;, &#x27;+&#x27;]
+</code></pre>
+<hr />
+<h2><strong>🎬 读到 ‘)’</strong></h2>
+<p>🔥 <strong>关键时刻</strong></p>
+<p>规则：</p>
+<blockquote>
+<p>一直计算到 ‘(’ 为止</p>
+</blockquote>
+<pre><code>5 + 2 = 7
+4 + 7 = 11
+nums = [1, 11]
+ops  = [&#x27;(&#x27;, &#x27;+&#x27;]
+</code></pre>
+<hr />
+<h2><strong>🎬 继续读 ‘-3’</strong></h2>
+<pre><code>nums = [1, 11, 3]
+ops  = [&#x27;(&#x27;, &#x27;+&#x27;, &#x27;-&#x27;]
+</code></pre>
+<hr />
+<h2><strong>🎬 再次 ‘)’</strong></h2>
+<pre><code>11 - 3 = 8
+1 + 8 = 9
+nums = [9]
+ops  = []
+</code></pre>
+<hr />
+<h2><strong>🎬 最后 +(6+8)</strong></h2>
+<pre><code>nums = [9, 6, 8]
+ops  = [&#x27;+&#x27;, &#x27;(&#x27; , &#x27;+&#x27;]
+</code></pre>
+<p>遇到 )：</p>
+<pre><code>6 + 8 = 14
+</code></pre>
+<p>最后：</p>
+<pre><code>9 + 14 = 23
+</code></pre>
+<p>🎉 完成</p>
+<hr />
+<h1><strong>七、标准 Python 代码</strong></h1>
+<pre><code class="language-python">class Solution:
+    def calculate(self, s: str) -&gt; int:
+        nums = []
+        ops = []
+
+        def priority(op):
+            if op in (&#x27;+&#x27;, &#x27;-&#x27;):
+                return 1
+            if op in (&#x27;*&#x27;, &#x27;/&#x27;):
+                return 2
+            return 0
+
+        def calc():
+            b = nums.pop()
+            a = nums.pop()
+            op = ops.pop()
+            if op == &#x27;+&#x27;:
+                nums.append(a + b)
+            elif op == &#x27;-&#x27;:
+                nums.append(a - b)
+            elif op == &#x27;*&#x27;:
+                nums.append(a * b)
+            else:
+                nums.append(int(a / b))  # 向 0 取整
+
+        i = 0
+        while i &lt; len(s):
+            if s[i] == &#x27; &#x27;:
+                i += 1
+            elif s[i].isdigit():
+                num = 0
+                while i &lt; len(s) and s[i].isdigit():
+                    num = num * 10 + int(s[i])
+                    i += 1
+                nums.append(num)
+            elif s[i] == &#x27;(&#x27;:
+                ops.append(s[i])
+                i += 1
+            elif s[i] == &#x27;)&#x27;:
+                while ops and ops[-1] != &#x27;(&#x27;:
+                    calc()
+                ops.pop()  # 弹出 &#x27;(&#x27;
+                i += 1
+            else:
+                while ops and priority(ops[-1]) &gt;= priority(s[i]):
+                    calc()
+                ops.append(s[i])
+                i += 1
+
+        while ops:
+            calc()
+
+        return nums[0]
+</code></pre>
+<hr />
+<h1><strong>八、面试常见追问</strong></h1>
+<h3><strong>Q1：为什么要两个栈？</strong></h3>
+<blockquote>
+<p>一个栈无法同时处理 <strong>数值顺序 + 运算符优先级 + 括号结构</strong></p>
+</blockquote>
+<hr />
+<h3><strong>Q2：能不能不用栈？</strong></h3>
+<blockquote>
+<p>本质还是递归，栈只是把递归<strong>显式化</strong></p>
+</blockquote>
+<hr />
+<h3><strong>Q3：为什么括号能“阻断计算”？</strong></h3>
+<blockquote>
+<p>因为 ( 的优先级最低，直到遇到 )</p>
+</blockquote>
+<hr />
+<h1><strong>九、面试一句话终极总结</strong></h1>
+<blockquote>
+<p>使用数字栈和运算符栈遍历字符串，数字直接入栈；运算符根据优先级进行计算；遇到右括号时计算到左括号为止，最终栈中结果即为表达式值。</p>
+</blockquote>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/21"/><category term="栈与队列"/><published>2026-01-14T15:12:21+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/20</id><title>LeetCode 232: 用栈实现队列</title><updated>2026-01-14T15:12:52.457227+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/implement-queue-using-stacks/"> LeetCode 232: 用队列实现栈</a></p>
 <h1><strong>一、核心思想</strong></h1>
 <blockquote>
 <p>让最新入队的元素，永远排到队列的最前面。</p>
@@ -176,7 +502,7 @@ class MyStack:
 <blockquote>
 <p><strong>用一次“整体倒置”，换来多次 O(1) 操作</strong></p>
 </blockquote>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/20"/><category term="栈与队列"/><published>2026-01-12T15:04:15+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/19</id><title>LeetCode 28：实现 strStr()（子串查找）</title><updated>2026-01-12T15:04:47.986252+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/description/">LeetCode 28：实现 strStr()（子串查找）</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/20"/><category term="栈与队列"/><published>2026-01-12T15:04:15+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/19</id><title>LeetCode 28：实现 strStr()（子串查找）</title><updated>2026-01-14T15:12:52.581915+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/description/">LeetCode 28：实现 strStr()（子串查找）</a></p>
 <h2><strong>一、先给结论（最重要）</strong></h2>
 <blockquote>
 <p><strong>最简单正确解法：暴力匹配（双指针）</strong></p>
@@ -620,7 +946,7 @@ for i in range(len(haystack)):
 </ul>
 <p>👉 <strong>没有“重复踩同一段跑道”</strong></p>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/19"/><category term="字符串"/><published>2026-01-10T16:00:09+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/18</id><title>LeetCode 151：反转字符串中的单词</title><updated>2026-01-12T15:04:48.197715+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-words-in-a-string/">LeetCode 151：反转字符串中的单词</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/19"/><category term="字符串"/><published>2026-01-10T16:00:09+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/18</id><title>LeetCode 151：反转字符串中的单词</title><updated>2026-01-14T15:12:52.754223+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-words-in-a-string/">LeetCode 151：反转字符串中的单词</a></p>
 <h2>一、题目本质（先想清楚你到底在干嘛）</h2>
 <p>这题<strong>不是简单反转字符串</strong>，而是三件事同时发生：</p>
 <p>1️⃣ <strong>去掉多余空格</strong></p>
@@ -815,7 +1141,7 @@ join
 <ul>
 <li>split() 会把多个空格合并（或者产生空串），<strong>会破坏“保留中间所有空格”的要求</strong>。</li>
 </ul>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/18"/><category term="字符串"/><published>2026-01-08T15:07:04+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/17</id><title>LeetCode 541：反转字符串 II</title><updated>2026-01-12T15:04:48.367275+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-string-ii/">LeetCode 541：反转字符串 II</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/18"/><category term="字符串"/><published>2026-01-08T15:07:04+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/17</id><title>LeetCode 541：反转字符串 II</title><updated>2026-01-14T15:12:52.900077+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-string-ii/">LeetCode 541：反转字符串 II</a></p>
 <hr />
 <h2><strong>一、题意快速翻译</strong></h2>
 <blockquote>
@@ -926,7 +1252,7 @@ join
 <p>本题通过每次以 2k 为步长遍历字符串，并对每一段的前 k 个字符进行反转即可。利用切片和越界特性可以统一处理所有边界情况，时间复杂度为 O(n)，实现简洁且高效。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/17"/><category term="字符串"/><published>2026-01-06T13:48:12+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/16</id><title>LeetCode 142：环形链表 II（找环的入口）</title><updated>2026-01-12T15:04:48.509208+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/linked-list-cycle-ii/">https://leetcode.cn/problems/linked-list-cycle-ii/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/17"/><category term="字符串"/><published>2026-01-06T13:48:12+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/16</id><title>LeetCode 142：环形链表 II（找环的入口）</title><updated>2026-01-14T15:12:53.043831+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/linked-list-cycle-ii/">https://leetcode.cn/problems/linked-list-cycle-ii/</a></p>
 <h2><strong>一、先给结论</strong></h2>
 <blockquote>
 <p><strong>先用快慢指针判断是否有环；</strong></p>
@@ -1092,7 +1418,7 @@ while slow != fast:
 <p>我先使用快慢指针判断链表是否存在环，如果存在，当快慢指针相遇后，将其中一个指针重新指向头节点，然后两个指针每次同时走一步，它们再次相遇的位置就是环的入口节点。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/16"/><category term="链表"/><published>2026-01-04T15:10:56+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/15</id><title>LeetCode 160：相交链表</title><updated>2026-01-12T15:04:48.672465+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/intersection-of-two-linked-lists/submissions/687890317/">https://leetcode.cn/problems/intersection-of-two-linked-lists/submissions/687890317/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/16"/><category term="链表"/><published>2026-01-04T15:10:56+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/15</id><title>LeetCode 160：相交链表</title><updated>2026-01-14T15:12:53.191646+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/intersection-of-two-linked-lists/submissions/687890317/">https://leetcode.cn/problems/intersection-of-two-linked-lists/submissions/687890317/</a></p>
 <h2><strong>一、先给结论</strong></h2>
 <blockquote>
 <p><strong>用两个指针分别从 headA 和 headB 出发，走到末尾后切换到另一条链表的头，如果两链表相交，两个指针一定会在交点相遇；如果不相交，最终都会走到 null。</strong></p>
@@ -1235,7 +1561,7 @@ pB = pB.next
 <p>使用双指针的方法，让两个指针分别从两条链表的头开始遍历，当走到末尾时切换到另一条链表的头。这样可以让两个指针走过相同的总路径长度，如果链表相交，它们一定会在交点相遇；如果不相交，则最终都会指向 null。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/15"/><category term="链表"/><published>2025-12-29T08:52:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/14</id><title>LeetCode 19：删除链表的倒数第 N 个节点</title><updated>2026-01-12T15:04:48.840199+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/remove-nth-node-from-end-of-list/">https://leetcode.cn/problems/remove-nth-node-from-end-of-list/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/15"/><category term="链表"/><published>2025-12-29T08:52:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/14</id><title>LeetCode 19：删除链表的倒数第 N 个节点</title><updated>2026-01-14T15:12:53.310254+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/remove-nth-node-from-end-of-list/">https://leetcode.cn/problems/remove-nth-node-from-end-of-list/</a></p>
 <h2><strong>一、题目真正考什么？</strong></h2>
 <p>不是“删节点”，而是：</p>
 <blockquote>
@@ -1352,7 +1678,7 @@ slow = head
 <blockquote>
 <p>我使用快慢指针的方法，让快指针先走 n 步，然后快慢指针同步前进，当快指针到达链表末尾时，慢指针正好位于待删除节点的前一个节点，从而可以在一趟遍历中完成删除操作。</p>
 </blockquote>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/14"/><category term="链表"/><published>2025-12-29T08:13:36+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/13</id><title>LeetCode 24：两两交换链表中的节点</title><updated>2026-01-12T15:04:49.007809+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/swap-nodes-in-pairs/">https://leetcode.cn/problems/swap-nodes-in-pairs/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/14"/><category term="链表"/><published>2025-12-29T08:13:36+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/13</id><title>LeetCode 24：两两交换链表中的节点</title><updated>2026-01-14T15:12:53.440646+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/swap-nodes-in-pairs/">https://leetcode.cn/problems/swap-nodes-in-pairs/</a></p>
 <h2><strong>一、题目核心约束（先抓重点）</strong></h2>
 <ul>
 <li>❌ 不能交换 val</li>
@@ -1500,7 +1826,7 @@ slow = head
 </ul>
 <p>👉 <strong>dummy + 成组指针重连</strong></p>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/13"/><category term="链表"/><published>2025-12-29T07:56:19+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/12</id><title>LeetCode 707：设计链表</title><updated>2026-01-12T15:04:49.137242+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/design-linked-list/description/">https://leetcode.cn/problems/design-linked-list/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/13"/><category term="链表"/><published>2025-12-29T07:56:19+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/12</id><title>LeetCode 707：设计链表</title><updated>2026-01-14T15:12:53.578922+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/design-linked-list/description/">https://leetcode.cn/problems/design-linked-list/description/</a></p>
 <h1><strong>一、设计选择</strong></h1>
 <p>👉 <strong>选择：单链表 + 虚拟头节点（dummy） + 记录长度</strong></p>
 <p>为什么？</p>
@@ -1704,7 +2030,7 @@ self.size -= 1
 </blockquote>
 <hr />
 <p>你选一个，我继续。</p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/12"/><category term="链表"/><published>2025-12-28T13:43:27+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/11</id><title>LeetCode 203：移除链表元素</title><updated>2026-01-12T15:04:49.316195+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/remove-linked-list-elements/">https://leetcode.cn/problems/remove-linked-list-elements/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/12"/><category term="链表"/><published>2025-12-28T13:43:27+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/11</id><title>LeetCode 203：移除链表元素</title><updated>2026-01-14T15:12:53.711841+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/remove-linked-list-elements/">https://leetcode.cn/problems/remove-linked-list-elements/</a></p>
 <h2><strong>一、这道题的“真正难点”是什么？</strong></h2>
 <p>不是删中间节点，而是：</p>
 <blockquote>
@@ -1831,7 +2157,7 @@ cur = cur.next   # ❌
 <li>删除条件是某个值</li>
 </ul>
 <p>👉 <strong>第一反应：dummy 虚拟头节点</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/11"/><category term="链表"/><published>2025-12-28T07:03:29+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/10</id><title>LeetCode 18：四数之和（4Sum）</title><updated>2026-01-12T15:04:49.460871+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/4sum/">
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/11"/><category term="链表"/><published>2025-12-28T07:03:29+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/10</id><title>LeetCode 18：四数之和（4Sum）</title><updated>2026-01-14T15:12:53.868886+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/4sum/">
 LeetCode 18：四数之和（4Sum）</a></p>
 <h2><strong>一、核心思路</strong></h2>
 <blockquote>
@@ -2024,7 +2350,7 @@ target = 0
 <blockquote>
 <p>我先对数组排序，通过两层循环固定前两个数，再在剩余区间内使用双指针查找另外两个数，使四数之和等于 target。通过在每一层跳过重复元素来保证结果不重复，整体时间复杂度是 O(n³)。</p>
 </blockquote>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/10"/><category term="数组"/><published>2025-12-28T06:37:15+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/9</id><title>LeetCode 15：三数之和（3Sum）</title><updated>2026-01-12T15:04:49.613739+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/3sum/">https://leetcode.cn/problems/3sum/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/10"/><category term="数组"/><published>2025-12-28T06:37:15+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/9</id><title>LeetCode 15：三数之和（3Sum）</title><updated>2026-01-14T15:12:54.009722+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/3sum/">https://leetcode.cn/problems/3sum/</a></p>
 <h2><strong>一、这道题的关键难点是什么？</strong></h2>
 <p>不是“能不能找到三个数”，而是：</p>
 <blockquote>
@@ -2176,7 +2502,7 @@ target = 0
 <li>不要求下标，只要组合</li>
 </ul>
 <p>👉 <strong>排序 + 双指针</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/9"/><category term="数组"/><published>2025-12-28T06:25:58+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/8</id><title>LeetCode 59：螺旋矩阵 II</title><updated>2026-01-12T15:04:49.792778+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/spiral-matrix-ii/">https://leetcode.cn/problems/spiral-matrix-ii/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/9"/><category term="数组"/><published>2025-12-28T06:25:58+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/8</id><title>LeetCode 59：螺旋矩阵 II</title><updated>2026-01-14T15:12:54.174934+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/spiral-matrix-ii/">https://leetcode.cn/problems/spiral-matrix-ii/</a></p>
 <h2><strong>一、核心思路</strong></h2>
 <blockquote>
 <p>用 <strong>四个边界</strong> 控制方向：</p>
@@ -2320,7 +2646,7 @@ if left &lt;= right:
 <p>我通过维护上下左右四个边界来模拟螺旋填充，每次按照右、下、左、上的顺序填数，并在填完一条边后收缩对应边界，直到所有元素填完。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/8"/><category term="数组"/><published>2025-12-28T05:57:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2026-01-12T15:04:49.951654+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/8"/><category term="数组"/><published>2025-12-28T05:57:46+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/7</id><title>LeetCode 209：长度最小的子数组</title><updated>2026-01-14T15:12:54.328864+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/minimum-size-subarray-sum/description/">https://leetcode.cn/problems/minimum-size-subarray-sum/description/</a></p>
 <hr />
 <h2><strong>一、这题为什么能用 O(n)？</strong></h2>
 <p>题目里有一个<strong>隐藏但决定性的条件</strong>：</p>
@@ -2488,7 +2814,7 @@ class Solution:
 <li>求最短 / 最长</li>
 </ul>
 <p><strong>第一反应：滑动窗口</strong></p>
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2026-01-12T15:04:50.143103+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/7"/><category term="数组"/><published>2025-12-28T04:42:13+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/6</id><title>LeetCode 704：二分查找（Binary Search）</title><updated>2026-01-14T15:12:54.474266+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/binary-search/">https://leetcode.cn/problems/binary-search/</a></p>
 <h2><strong>一、核心结论</strong></h2>
 <blockquote>
 <p><strong>有序数组 + O(log n)</strong></p>
@@ -2815,7 +3141,7 @@ target = 2
 <p><strong>找最后一个：命中后左边界右移</strong></p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2026-01-12T15:04:50.295288+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/6"/><category term="数组"/><published>2025-12-27T05:54:00+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/5</id><title>LeetCode 215. 数组中的第K个最大元素</title><updated>2026-01-14T15:12:54.641149+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/">https://leetcode.cn/problems/kth-largest-element-in-an-array/solutions/821137/ji-yu-kuai-pai-de-suo-you-topkwen-ti-jia-ylsd/</a></p>
 <hr />
 <h2><strong>一、TopK 问题的本质</strong></h2>
 <blockquote>
@@ -3185,7 +3511,7 @@ target = 2
 <p>最坏情况是 O(n²)，可以通过随机 pivot 优化。</p>
 </blockquote>
 <hr />
-]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2026-01-12T15:04:50.472638+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
+]]></content><link href="https://github.com/lihe/MyLeetcode/issues/5"/><category term="数组"/><published>2025-12-25T14:54:28+00:00</published></entry><entry><id>https://github.com/lihe/MyLeetcode/issues/1</id><title>LeetCode 206 反转链表</title><updated>2026-01-14T15:12:54.778250+00:00</updated><content type="html"><![CDATA[<p><a href="https://leetcode.cn/problems/reverse-linked-list/description/">https://leetcode.cn/problems/reverse-linked-list/description/</a></p>
 <h2><strong>一、题目回顾</strong></h2>
 <p><strong>问题</strong></p>
 <p>给定单链表头节点 head，反转链表并返回反转后的头节点。</p>
